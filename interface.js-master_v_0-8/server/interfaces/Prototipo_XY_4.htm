@@ -1,0 +1,77 @@
+<html>
+<head>
+<script src='interface.js'></script>
+</head>
+<body>
+<script>
+    // The Interface.js simple server outputs all OSC messages to port 8082. See the README for more information.
+    // You can manually send OSC messages with the following syntax:
+     // Interface.OSC.send('/test', 'f', 5.7);
+
+     var idComp=Math.floor(Math.random()*1000001);
+     var nombres = ["Instrumento 1", "Instrumento 2","Instrumento 3","Instrumento 4","Instrumento 5","Instrumento 6","Instrumento 7"];
+     console.log(nombres.length);
+
+     console.log(nombres[idComp%nombres.length]);
+     var a = new Interface.Panel({  background:"#000"});      
+
+     var m = new Interface.Label({ 
+      //bounds:[.7,.2,.25,.5],
+      bounds:[0.05,0.03,.55,0.90],
+      value:nombres[idComp%nombres.length],
+      hAlign:'center',
+      size: 25,
+      font: 'Times',
+    });
+
+     var xy = new Interface.XY({
+      childWidth: 50,
+      numChildren: 1,
+      background:"#111",
+      fill: "rgba(127,127,127,.2)",
+      //stroke 'rgba(255,255,255,.2)',
+      bounds:[0.05,0.1,.55,0.80],
+      oninit: function() { 
+        this.rainbow(); 
+        this.friction=0;
+        this.velocity =0.9;
+
+      },
+      onvaluechange: function() { 
+        //Interface.OSC.send('/togBt', 'ii', [idComp,1]);  
+        Interface.OSC.send('/XY', 'iff', [idComp,this.values[0].x,this.values[0].y]);
+        setInterval(function(){
+          //alert("Entra func");
+          //console.log("Silencio");
+           //this.children[0].fill = 'rgba(0,0,0,35)';
+           //alert("Pinta algo");
+         },3000);
+      },
+    });
+
+     var c = new Interface.Knob({ 
+      bounds:[.65,0.05,0.2], 
+      value:.25,
+      usesRotation:true,
+      centerZero: false,
+      onvaluechange: function() { 
+        Interface.OSC.send('/knob_vol', 'if', [idComp,this.value]);
+      },
+    });
+
+     var d = new Interface.Knob({ 
+      bounds:[.65,0.51,0.2], 
+      value:.25,
+      usesRotation:true,
+      centerZero: false,
+      onvaluechange: function() { 
+        Interface.OSC.send('/knob_rit', 'if', [idComp,this.value]);
+      },
+    });
+
+
+     a.background = 'black';
+     a.add(xy,c,d,m);
+     </script>
+     </body>
+     </html>
